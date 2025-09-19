@@ -1,14 +1,23 @@
 
+--DROP TABLE portfolio.dividend;
+--DROP TABLE portfolio.Account;
+--DROP TABLE portfolio.accountType;
+--DROP TABLE portfolio.dividendFrequency;
+--DROP TABLE portfolio.dividendType;
+--DROP TABLE portfolio.stockSplit;
+--DROP TABLE portfolio.stock;
+--DROP TABLE portfolio.sector;
+
+
+
+
 -- =============================================================
 -- Sector
 -- =============================================================
 CREATE TABLE portfolio.sector (
-    id INT PRIMARY KEY,
-    name VARCHAR(50)
+    id INT PRIMARY KEY NOT NULL,
+    name VARCHAR(50) NOT NULL
 )
-
-SELECT * FROM portfolio.sector;
-
 
 
 
@@ -16,15 +25,13 @@ SELECT * FROM portfolio.sector;
 -- Stock
 -- =============================================================
 CREATE TABLE portfolio.stock (
-    symbol VARCHAR(6),
-    name VARCHAR(50),
-    sector VARCHAR(50),
+    symbol VARCHAR(6) PRIMARY KEY NOT NULL,
+    name VARCHAR(50) NOT NULL,
+    sectorId INT NOT NULL,
     industry VARCHAR(50),
-    website VARCHAR(100)
+    website VARCHAR(100),
+	CONSTRAINT FK_Sector FOREIGN KEY(sectorId) REFERENCES portfolio.sector (id)
 )
-
-SELECT * FROM portfolio.stock;
-
 
 
 
@@ -35,15 +42,13 @@ SELECT * FROM portfolio.stock;
 -- =============================================================
 CREATE TABLE portfolio.stockSplit (
 	id INT NOT NULL IDENTITY(1,1) PRIMARY KEY, 
-	symbol VARCHAR(6),
-	date DATE,
-	split VARCHAR(7),
-	multiple DECIMAL(4,1),
-	description VARCHAR(20)
+	symbol VARCHAR(6) NOT NULL,
+	date DATE NOT NULL,
+	split VARCHAR(7) NOT NULL,
+	multiple DECIMAL(4,1) NOT NULL,
+	description VARCHAR(20),
+	CONSTRAINT FK_Stock FOREIGN KEY (symbol) REFERENCES portfolio.stock (symbol)
 )
-
-SELECT * FROM portfolio.stockSplit;
-
 
 
 
@@ -51,12 +56,9 @@ SELECT * FROM portfolio.stockSplit;
 -- Divident Type
 -- =============================================================
 CREATE TABLE portfolio.dividendType (
-	id TINYINT PRIMARY KEY,
-	name VARCHAR(50)
+	id TINYINT PRIMARY KEY NOT NULL,
+	name VARCHAR(50) NOT NULL
 )
-
-SELECT * FROM portfolio.dividendType;
-
 
 
 
@@ -65,11 +67,8 @@ SELECT * FROM portfolio.dividendType;
 -- =============================================================
 CREATE TABLE portfolio.dividendFrequency (
 	id TINYINT PRIMARY KEY,
-	name VARCHAR(50)
+	name VARCHAR(50) NOT NULL
 )
-
-SELECT * FROM portfolio.dividendFrequency;
-
 
 
 
@@ -78,11 +77,8 @@ SELECT * FROM portfolio.dividendFrequency;
 -- =============================================================
 CREATE TABLE portfolio.accountType (
 	id TINYINT PRIMARY KEY,
-	name VARCHAR(50)
+	name VARCHAR(50) NOT NULL
 )
-
-SELECT * FROM portfolio.accountType;
-
 
 
 
@@ -92,15 +88,17 @@ SELECT * FROM portfolio.accountType;
 -- =============================================================
 CREATE TABLE portfolio.dividend (
 	id INT NOT NULL IDENTITY(1,1) PRIMARY KEY, 
-	symbol VARCHAR(6), 
-	type TINYINT, 
+	symbol VARCHAR(6) NOT NULL, 
+	dividendTypeId TINYINT, 
 	frequency TINYINT, 
 	amount DECIMAL(19, 4), 
 	adjustedAmount DECIMAL(19, 4), 
 	declareDate DATE, 
 	exDividendDate DATE, 
 	recordDate DATE, 
-	payDate DATE
+	payDate DATE,
+	CONSTRAINT FK_Divident_Stock FOREIGN KEY (symbol) REFERENCES portfolio.stock (symbol),
+	CONSTRAINT FK_Dividend_Type FOREIGN KEY (dividendTypeId) REFERENCES portfolio.dividendType (id)
 )
 
 SELECT * FROM portfolio.dividend WHERE symbol = 'APD' ORDER BY payDate DESC;
